@@ -36,13 +36,50 @@ Optional debug env var to print the raw JSON payload:
 export CHATGPT_DEBUG_DUMP=1
 ```
 
-## Run locally
+## Test it on your local Mac
+
+### 1) Quick API sanity check (Terminal)
+
+Run this first to confirm your token works before opening Xcode:
+
+```bash
+curl 'https://chatgpt.com/backend-api/usage_limits' \
+  -H "Cookie: __Secure-next-auth.session-token=$CHATGPT_SESSION_TOKEN" \
+  -H 'Origin: https://chatgpt.com' \
+  -H 'Referer: https://chatgpt.com/' \
+  -H 'User-Agent: Mozilla/5.0'
+```
+
+If that returns JSON (not an auth error), the app should be able to read usage.
+
+### 2) Run from Terminal
 
 ```bash
 swift run
 ```
 
-If you launch from Xcode, set the same environment variables in the Run scheme.
+You should see a new menubar item like `Plus 42%`.
+
+### 3) Run/debug in Xcode (recommended)
+
+1. Open the folder or `Package.swift` in Xcode.
+2. Select the `ChatGPTPlusUsageMenubar` run target.
+3. Edit Scheme → Run → Arguments → Environment Variables:
+   - `CHATGPT_SESSION_TOKEN` = your token
+   - (optional) `CHATGPT_DEBUG_DUMP` = `1`
+4. Press Run.
+
+### 4) What “working” looks like
+
+- Menubar text changes from `Plus --%` to `Plus <number>%`
+- Clicking it shows `5-hour window: used/limit`
+- Refresh button updates values
+
+### 5) If it fails
+
+- `401/403`: token expired; grab a fresh session token
+- “Could not find usage counters…”: backend JSON shape changed; enable `CHATGPT_DEBUG_DUMP=1` and update keys in `Sources/CodexUsageService.swift`
+- No menu item appears: make sure the app is running in macOS (not Linux/CI)
 
 ## Notes
 
